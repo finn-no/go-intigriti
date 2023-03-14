@@ -11,7 +11,7 @@ import (
 
 const (
 	// TODO: inject on every HTTP request
-	clientTag = "hazcod/go-intigriti/1.0"
+	clientTag = "finn-no/go-intigriti/1.0"
 )
 
 type Endpoint struct {
