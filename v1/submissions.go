@@ -144,10 +144,6 @@ type Submission struct {
 
 	CloseReason string
 }
-
-/*
-	INTIGRITI Report structure
-*/
 type SubmissionDetails struct {
 	Submission        Submission
 	Code              string `json:"code"`
@@ -352,10 +348,6 @@ type SubmissionDetails struct {
 		URL       string `json:"url"`
 	} `json:"integrationReferences"`
 }
-
-/*
-	Attachment structure used in Submission
-*/
 type Attachment struct {
 	ID             string `json:"id"`
 	LinkID         string `json:"linkId"`
@@ -398,7 +390,6 @@ func (e *Endpoint) GetSubmissions() ([]Submission, error) {
 		return findings, errors.Wrap(err, "could not authenticate to intigriti API")
 	}
 
-	// req, err := http.NewRequest(http.MethodGet, e.URLApiSubmissions, nil) //ORIGINAL
 	req, err := http.NewRequest(http.MethodGet, apiEndpointV1, nil)
 	if err != nil {
 		return findings, errors.Wrap(err, "could not create http request to intigriti")
@@ -476,15 +467,12 @@ func (e *Endpoint) GetSubmissions() ([]Submission, error) {
 	return findings, nil
 }
 
-/*
-	GetSubmission gets report/submission by code/id
-*/
 func (e *Endpoint) GetSubmission(code string) (*SubmissionDetails, error) {
 	var submi SubmissionDetails
 	var respBytes []byte
 	var err error
 	var req *http.Request
-	url := apiEndpointV1 + "/SCHIBSTED-LKJ2GIWL"
+	url := apiEndpointV1 + "/" + code
 
 	if err := authenticate(e); err != nil {
 		return nil, errors.Wrap(err, "could not authenticate to intigriti API")
