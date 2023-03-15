@@ -1,15 +1,16 @@
 package v1
 
 import (
-	"github.com/sirupsen/logrus"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 const (
 	apiSubmissions = "https://api.intigriti.com/external/submission"
 	apiAuth        = "https://login.intigriti.com/connect/token"
-
-	clientTag = "Go intigriti library"
+	apiEndpointV1  = "https://api.intigriti.com/external/v1.2/submissions"
+	clientTag      = "Go intigriti library"
 )
 
 type Endpoint struct {

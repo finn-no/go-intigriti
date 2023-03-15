@@ -148,7 +148,7 @@ type Submission struct {
 /*
 	INTIGRITI Report structure
 */
-type SubmissionComplete struct {
+type SubmissionDetails struct {
 	Submission        Submission
 	Code              string `json:"code"`
 	URL               string
@@ -398,7 +398,8 @@ func (e *Endpoint) GetSubmissions() ([]Submission, error) {
 		return findings, errors.Wrap(err, "could not authenticate to intigriti API")
 	}
 
-	req, err := http.NewRequest(http.MethodGet, e.URLApiSubmissions, nil)
+	// req, err := http.NewRequest(http.MethodGet, e.URLApiSubmissions, nil) //ORIGINAL
+	req, err := http.NewRequest(http.MethodGet, apiEndpointV1, nil)
 	if err != nil {
 		return findings, errors.Wrap(err, "could not create http request to intigriti")
 	}
@@ -476,18 +477,22 @@ func (e *Endpoint) GetSubmissions() ([]Submission, error) {
 }
 
 /*
-	GetSpecificSubmission gets report/submission by code/id
+	GetSubmission gets report/submission by code/id
 */
-func (e *Endpoint) GetSpecificSubmission(code string) (SubmissionComplete, error) {
-	var submi SubmissionComplete
+func (e *Endpoint) GetSubmission(code string) (*SubmissionDetails, error) {
+	var submi SubmissionDetails
 	var respBytes []byte
 	var err error
 	var req *http.Request
-	url := "https://api.intigriti.com/external/v1.2/submissions/" + code
+	url := apiEndpointV1 + "/SCHIBSTED-LKJ2GIWL"
+
+	if err := authenticate(e); err != nil {
+		return nil, errors.Wrap(err, "could not authenticate to intigriti API")
+	}
 
 	req, err = http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return SubmissionComplete{}, errors.Wrap(err, "could not create http request to intigriti")
+		return nil, errors.Wrap(err, "could not create http request to intigriti")
 	}
 	req.Header.Set("Content-Type", mimeFormUrlEncoded)
 	req.Header.Set("X-Client", clientTag)
@@ -496,7 +501,7 @@ func (e *Endpoint) GetSpecificSubmission(code string) (SubmissionComplete, error
 	client := http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return SubmissionComplete{}, errors.Wrap(err, "fetching to intigriti failed")
+		return nil, errors.Wrap(err, "fetching to intigriti failed")
 	}
 
 	defer func() { _ = resp.Body.Close() }()
@@ -505,23 +510,22 @@ func (e *Endpoint) GetSpecificSubmission(code string) (SubmissionComplete, error
 	if resp.StatusCode == http.StatusUnauthorized {
 		// fetch a new token
 		if err := authenticate(e); err != nil {
-			return SubmissionComplete{}, errors.Wrap(err, "could not reauthenticate to intigriti API")
+			return nil, errors.Wrap(err, "could not reauthenticate to intigriti API")
 		}
-
 		e.Logger.Debug("reauthenticated because of an invalidated token")
 	}
 
 	if resp.StatusCode > 399 {
-		return SubmissionComplete{}, errors.Errorf("fetch from intigriti returned status code: %d", resp.StatusCode)
+		return nil, errors.Errorf("fetch from intigriti returned status code: %d", resp.StatusCode)
 	}
 
 	respBytes, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return SubmissionComplete{}, errors.Wrap(err, "could not read response")
+		return nil, errors.Wrap(err, "could not read response")
 	}
-	if err := json.Unmarshal(respBytes, &submi); err != nil {
-		return submi, errors.Wrap(err, "could not decode intigriti response")
+	err = json.Unmarshal(respBytes, &submi)
+	if err != nil && submi.Code == "" {
+		return nil, err
 	}
-	return SubmissionComplete{}, errors.New("ends in error")
-
+	return &submi, nil
 }
