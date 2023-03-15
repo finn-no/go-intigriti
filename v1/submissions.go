@@ -3,6 +3,7 @@ package v1
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -306,16 +307,16 @@ type SubmissionDetails struct {
 		} `json:"user"`
 		From struct {
 			Status struct {
-				ID    int    `json:"id"`
-				Value string `json:"value"`
-			} `json:"status"`
-			CloseReason            interface{} `json:"closeReason"`
-			DuplicateSubmissionURL string      `json:"duplicateSubmissionUrl"`
-			UserID                 string      `json:"userId"`
-			UserName               string      `json:"userName"`
-			AvatarURL              string      `json:"avatarUrl"`
-			Email                  string      `json:"email"`
-			Role                   string      `json:"role"`
+				ID    int    `json:"id,omitempty"`
+				Value string `json:"value,omitempty"`
+			} `json:"status,omitempty"`
+			CloseReason            interface{} `json:"closeReason,omitempty"`
+			DuplicateSubmissionURL string      `json:"duplicateSubmissionUrl,omitempty"`
+			UserID                 string      `json:"userId,omitempty"`
+			UserName               string      `json:"userName,omitempty"`
+			AvatarURL              string      `json:"avatarUrl,omitempty"`
+			Email                  string      `json:"email,omitempty"`
+			Role                   string      `json:"role,omitempty"`
 		} `json:"from,omitempty"`
 		To struct {
 			Status struct {
@@ -335,7 +336,7 @@ type SubmissionDetails struct {
 		Attachments            []Attachment `json:"attachments"`
 		AttachmentUrls         []string     `json:"attachmentUrls"`
 		DestroyMessageMetadata interface{}  `json:"destroyMessageMetadata"`
-	} `json:"events"`
+	} `json:"events,omitempty"`
 	WebLinks struct {
 		Details string `json:"details"`
 	} `json:"webLinks"`
@@ -512,8 +513,22 @@ func (e *Endpoint) GetSubmission(code string) (*SubmissionDetails, error) {
 		return nil, errors.Wrap(err, "could not read response")
 	}
 	err = json.Unmarshal(respBytes, &submi)
-	if err != nil && submi.Code == "" {
-		return nil, err
+	if err != nil {
+		checker := false
+		// isUnmarshalError := errors.As(err, &target)
+		var target *json.UnmarshalTypeError
+		if errors.As(err, &target) {
+			log.Println("Json binding error")
+			if target.Field != "" {
+				checker = true
+
+			} else {
+				checker = false
+			}
+		}
+		if !checker {
+			return nil, err
+		}
 	}
 	return &submi, nil
 }
