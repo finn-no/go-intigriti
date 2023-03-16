@@ -2,11 +2,13 @@ package v1
 
 import (
 	"encoding/json"
-	"github.com/pkg/errors"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 type submissionsResponse []struct {
@@ -143,6 +145,221 @@ type Submission struct {
 
 	CloseReason string
 }
+type SubmissionDetails struct {
+	Submission        Submission
+	Code              string `json:"code"`
+	URL               string
+	InternalReference struct {
+		Reference string `json:"reference"`
+		URL       string `json:"url"`
+	} `json:"internalReference"`
+	Title         string `json:"title"`
+	OriginalTitle string `json:"originalTitle"`
+	Type          struct {
+		Name     string `json:"name"`
+		Category string `json:"category"`
+		Cwe      string `json:"cwe"`
+	} `json:"type"`
+	Questions []struct {
+		Question string `json:"question"`
+		Type     struct {
+			ID    int    `json:"id"`
+			Value string `json:"value"`
+		} `json:"type"`
+		Answer string `json:"answer"`
+	} `json:"questions"`
+	Program struct {
+		ID                   string `json:"id"`
+		Name                 string `json:"name"`
+		Handle               string `json:"handle"`
+		LogoURL              string `json:"logoUrl"`
+		ConfidentialityLevel struct {
+			ID    int    `json:"id"`
+			Value string `json:"value"`
+		} `json:"confidentialityLevel"`
+		Status struct {
+			ID    int    `json:"id"`
+			Value string `json:"value"`
+		} `json:"status"`
+		StatusTrigger struct {
+			ID    int    `json:"id"`
+			Value string `json:"value"`
+		} `json:"statusTrigger"`
+	} `json:"program"`
+	Domain struct {
+		Value      string `json:"value"`
+		Motivation string `json:"motivation"`
+		Type       struct {
+			ID    int    `json:"id"`
+			Value string `json:"value"`
+		} `json:"type"`
+		BountyTable struct {
+			ID    int    `json:"id"`
+			Value string `json:"value"`
+		} `json:"bountyTable"`
+		Description string `json:"description"`
+	} `json:"domain"`
+	EndpointVulnerableComponent string `json:"endpointVulnerableComponent"`
+	PocDescription              string `json:"pocDescription"`
+	Impact                      string `json:"impact"`
+	PersonalData                bool   `json:"personalData"`
+	RecommendedSolution         string `json:"recommendedSolution"`
+	State                       struct {
+		Status struct {
+			ID    int    `json:"id"`
+			Value string `json:"value"`
+		} `json:"status"`
+		CloseReason struct {
+			ID    int    `json:"id"`
+			Value string `json:"value"`
+		} `json:"closeReason"`
+		DuplicateSubmissionURL string `json:"duplicateSubmissionUrl"`
+	} `json:"state"`
+	DuplicatedSubmissionUrls []string `json:"duplicatedSubmissionUrls"`
+	Severity                 struct {
+		ID     int    `json:"id"`
+		Vector string `json:"vector"`
+		Value  string `json:"value"`
+	} `json:"severity"`
+	AwaitingFeedback bool `json:"awaitingFeedback"`
+	DaysOpen         int  `json:"daysOpen"`
+	Payouts          []struct {
+		Amount    interface{} `json:"amount"`
+		CreatedAt interface{} `json:"createdAt"`
+		Type      struct {
+			ID    interface{} `json:"id"`
+			Value string      `json:"value"`
+		} `json:"type"`
+	} `json:"payouts"`
+	TotalPayout       interface{} `json:"totalPayout"`
+	TotalBountyPayout interface{} `json:"totalBountyPayout"`
+	TotalBonusPayout  interface{} `json:"totalBonusPayout"`
+	CreatedAt         int         `json:"createdAt"`
+	LastUpdatedAt     int         `json:"lastUpdatedAt"`
+	ValidatedAt       int         `json:"validatedAt"`
+	AcceptedAt        int         `json:"acceptedAt"`
+	ClosedAt          int         `json:"closedAt"`
+	ArchivedAt        int         `json:"archivedAt"`
+	Destroyed         struct {
+		DestroyedBy struct {
+			UserID    string `json:"userId"`
+			UserName  string `json:"userName"`
+			AvatarURL string `json:"avatarUrl"`
+			Email     string `json:"email"`
+			Role      string `json:"role"`
+		} `json:"destroyedBy"`
+		DestroyedAt string `json:"destroyedAt"`
+	} `json:"destroyed"`
+	Assignee struct {
+		UserID    string `json:"userId"`
+		UserName  string `json:"userName"`
+		AvatarURL string `json:"avatarUrl"`
+		Email     string `json:"email"`
+		Role      string `json:"role"`
+	} `json:"assignee"`
+	Tags           []string     `json:"tags"`
+	Attachments    []Attachment `json:"attachments"`
+	AttachmentUrls []string     `json:"attachmentUrls"`
+	GroupLegacy    struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	} `json:"groupLegacy"`
+	Researcher struct {
+		UserID    string `json:"userId"`
+		UserName  string `json:"userName"`
+		AvatarURL string `json:"avatarUrl"`
+		Email     string `json:"email"`
+		Role      string `json:"role"`
+		Ranking   struct {
+			Rank       interface{} `json:"rank"`
+			Reputation interface{} `json:"reputation"`
+			Streak     struct {
+				ID    interface{} `json:"id"`
+				Value string      `json:"value"`
+			} `json:"streak"`
+		} `json:"ranking"`
+		IdentityChecked bool `json:"identityChecked"`
+	} `json:"researcher"`
+	LastUpdater struct {
+		UserID    string `json:"userId"`
+		UserName  string `json:"userName"`
+		AvatarURL string `json:"avatarUrl"`
+		Email     string `json:"email"`
+		Role      string `json:"role"`
+	} `json:"lastUpdater"`
+	Files  []string `json:"files"`
+	Events []struct {
+		Type struct {
+			ID    int    `json:"id"`
+			Value string `json:"value"`
+		} `json:"type"`
+		CreatedAt  int `json:"createdAt"`
+		Visibility struct {
+			ID    int    `json:"id"`
+			Value string `json:"value"`
+		} `json:"visibility"`
+		User struct {
+			UserID    string      `json:"userId"`
+			UserName  string      `json:"userName"`
+			AvatarURL string      `json:"avatarUrl"`
+			Email     interface{} `json:"email"`
+			Role      string      `json:"role"`
+		} `json:"user"`
+		From struct {
+			Status struct {
+				ID    int    `json:"id,omitempty"`
+				Value string `json:"value,omitempty"`
+			} `json:"status,omitempty"`
+			CloseReason            interface{} `json:"closeReason,omitempty"`
+			DuplicateSubmissionURL string      `json:"duplicateSubmissionUrl,omitempty"`
+			UserID                 string      `json:"userId,omitempty"`
+			UserName               string      `json:"userName,omitempty"`
+			AvatarURL              string      `json:"avatarUrl,omitempty"`
+			Email                  string      `json:"email,omitempty"`
+			Role                   string      `json:"role,omitempty"`
+		} `json:"from,omitempty"`
+		To struct {
+			Status struct {
+				ID    int    `json:"id"`
+				Value string `json:"value"`
+			} `json:"status"`
+			CloseReason            interface{} `json:"closeReason"`
+			DuplicateSubmissionURL string      `json:"duplicateSubmissionUrl"`
+			UserID                 string      `json:"userId"`
+			UserName               string      `json:"userName"`
+			AvatarURL              string      `json:"avatarUrl"`
+			Email                  string      `json:"email"`
+			Role                   string      `json:"role"`
+		} `json:"to,omitempty"`
+		Amount                 float64      `json:"amount"`
+		Message                interface{}  `json:"message"`
+		Attachments            []Attachment `json:"attachments"`
+		AttachmentUrls         []string     `json:"attachmentUrls"`
+		DestroyMessageMetadata interface{}  `json:"destroyMessageMetadata"`
+	} `json:"events,omitempty"`
+	WebLinks struct {
+		Details string `json:"details"`
+	} `json:"webLinks"`
+	IntegrationReferences []struct {
+		Type struct {
+			ID    int    `json:"id"`
+			Value string `json:"value"`
+		} `json:"type"`
+		Reference string `json:"reference"`
+		URL       string `json:"url"`
+	} `json:"integrationReferences"`
+}
+type Attachment struct {
+	ID             string `json:"id"`
+	LinkID         string `json:"linkId"`
+	Name           string `json:"name"`
+	Type           string `json:"type"`
+	IsSafe         bool   `json:"isSafe"`
+	Size           int    `json:"size"`
+	CreatedAt      int    `json:"createdAt"`
+	Code           int    `json:"code"`
+	AttachmentType int    `json:"attachmentType"`
+}
 
 func (s *Submission) IsReady() bool {
 	switch strings.ToLower(s.State) {
@@ -174,7 +391,7 @@ func (e *Endpoint) GetSubmissions() ([]Submission, error) {
 		return findings, errors.Wrap(err, "could not authenticate to intigriti API")
 	}
 
-	req, err := http.NewRequest(http.MethodGet, e.URLApiSubmissions, nil)
+	req, err := http.NewRequest(http.MethodGet, apiEndpointV1, nil)
 	if err != nil {
 		return findings, errors.Wrap(err, "could not create http request to intigriti")
 	}
@@ -249,4 +466,69 @@ func (e *Endpoint) GetSubmissions() ([]Submission, error) {
 	}
 
 	return findings, nil
+}
+
+func (e *Endpoint) GetSubmission(code string) (*SubmissionDetails, error) {
+	var submi SubmissionDetails
+	var respBytes []byte
+	var err error
+	var req *http.Request
+	url := apiEndpointV1 + "/" + code
+
+	if err := authenticate(e); err != nil {
+		return nil, errors.Wrap(err, "could not authenticate to intigriti API")
+	}
+
+	req, err = http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not create http request to intigriti")
+	}
+	req.Header.Set("Content-Type", mimeFormUrlEncoded)
+	req.Header.Set("X-Client", clientTag)
+	req.Header.Set("Authorization", getBearerTokenHeader(e.authToken))
+
+	client := http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "fetching to intigriti failed")
+	}
+
+	defer func() { _ = resp.Body.Close() }()
+
+	// the token was invalidated before it expired
+	if resp.StatusCode == http.StatusUnauthorized {
+		// fetch a new token
+		if err := authenticate(e); err != nil {
+			return nil, errors.Wrap(err, "could not reauthenticate to intigriti API")
+		}
+		e.Logger.Debug("reauthenticated because of an invalidated token")
+	}
+
+	if resp.StatusCode > 399 {
+		return nil, errors.Errorf("fetch from intigriti returned status code: %d", resp.StatusCode)
+	}
+
+	respBytes, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not read response")
+	}
+	err = json.Unmarshal(respBytes, &submi)
+	if err != nil {
+		checker := false
+		// isUnmarshalError := errors.As(err, &target)
+		var target *json.UnmarshalTypeError
+		if errors.As(err, &target) {
+			log.Println("Json binding error")
+			if target.Field != "" {
+				checker = true
+
+			} else {
+				checker = false
+			}
+		}
+		if !checker {
+			return nil, err
+		}
+	}
+	return &submi, nil
 }

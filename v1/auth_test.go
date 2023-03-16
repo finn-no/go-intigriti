@@ -56,7 +56,11 @@ func getTestAuthTokenServer(token string, expiresAtSec int) *httptest.Server {
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 		}
-		w.Write(bytes)
+		_, err = w.Write(bytes)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
 	}))
 }
 
