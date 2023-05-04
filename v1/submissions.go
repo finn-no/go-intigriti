@@ -518,7 +518,6 @@ func (e *Endpoint) GetSubmission(code string) (*SubmissionDetails, error) {
 		// isUnmarshalError := errors.As(err, &target)
 		var target *json.UnmarshalTypeError
 		if errors.As(err, &target) {
-			log.Println("Json binding error")
 			if target.Field != "" {
 				checker = true
 
