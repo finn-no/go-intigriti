@@ -3,7 +3,7 @@ package v2
 import (
 	"net/http"
 
-	"github.com/finn-no/go-intigriti/pkg/config"
+	config "github.com/finn-no/go-intigriti/pkg/config"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
@@ -11,7 +11,7 @@ import (
 
 const (
 	// TODO: inject on every HTTP request
-	clientTag = "finn-no/go-intigriti/1.0"
+	clientTag = "finn-no/go-intigriti/2.0"
 )
 
 type Endpoint struct {

@@ -3,19 +3,24 @@ package v2
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 const (
-	submissionUri = "/company/v2/submissions"
+	apiSubmissions = "/company/v2/submissions"
+	apiEndpointV2  = "/company/v2"
 )
 
+/*
+GetSubmissions returns a slice of submissions  from all orgs programs
+*/
 func (e *Endpoint) GetSubmissions() ([]Submission, error) {
-	req, err := http.NewRequest(http.MethodGet, e.URLAPI+submissionUri, nil)
+	req, err := http.NewRequest(http.MethodGet, e.URLAPI+apiSubmissions, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create get programs")
 	}
@@ -42,6 +47,95 @@ func (e *Endpoint) GetSubmissions() ([]Submission, error) {
 	}
 
 	return submissions, nil
+}
+
+/*
+GetProgramSubmissions returns a slice of submissions from orgs
+specific program by id
+*/
+func (e *Endpoint) GetProgramSubmissions(programId string) ([]Submission, error) {
+	apiEndpoint := fmt.Sprintf("%s/program/%s/submissions", e.URLAPI, programId)
+	req, err := http.NewRequest(http.MethodGet, apiEndpoint, nil)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "could not create get programs")
+	}
+
+	resp, err := e.client.Do(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not get programs")
+	}
+
+	if resp.StatusCode > 399 {
+		return nil, errors.Errorf("returned status %d", resp.StatusCode)
+	}
+
+	defer resp.Body.Close()
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not read response")
+	}
+
+	var submissions []Submission
+
+	if err := json.Unmarshal(b, &submissions); err != nil {
+		return nil, errors.Wrap(err, "could not decode programs")
+	}
+
+	return submissions, nil
+}
+
+/*
+GetSubmission returns submission by its code
+*/
+func (e *Endpoint) GetSubmission(code string) (*Submission, error) {
+	var submi Submission
+	var respBytes []byte
+	var err error
+	var req *http.Request
+
+	url := fmt.Sprintf("%s/%s", apiEndpointV2, code)
+
+	req, err = http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not create http request to intigriti")
+	}
+
+	client := http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "fetching to intigriti failed")
+	}
+
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode > 399 {
+		return nil, errors.Errorf("fetch from intigriti returned status code: %d", resp.StatusCode)
+	}
+
+	respBytes, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not read response")
+	}
+	err = json.Unmarshal(respBytes, &submi)
+	if err != nil {
+		checker := false
+		// isUnmarshalError := errors.As(err, &target)
+		var target *json.UnmarshalTypeError
+		if errors.As(err, &target) {
+			if target.Field != "" {
+				checker = true
+
+			} else {
+				checker = false
+			}
+		}
+		if !checker {
+			return nil, err
+		}
+	}
+	return &submi, nil
 }
 
 // json-to-go from https://api.intigriti.com/external/swagger/index.html?urls.primaryName=V1.2#/Submissions/Submissions_Get
@@ -84,16 +178,13 @@ type Submission struct {
 			} `json:"tier"`
 			Description string `json:"description"`
 		} `json:"domain"`
-		EndpointVulnerableComponent string `json:"endpointVulnerableComponent"`
-		PocDescription              string `json:"pocDescription"`
-		Impact                      string `json:"impact"`
-		PersonalData                bool   `json:"personalData"`
-		RecommendedSolution         string `json:"recommendedSolution"`
-		Attachments                 []struct {
-			URL  string `json:"url"`
-			Code int    `json:"code"`
-		} `json:"attachments"`
-		IP string `json:"ip"`
+		EndpointVulnerableComponent string       `json:"endpointVulnerableComponent"`
+		PocDescription              string       `json:"pocDescription"`
+		Impact                      string       `json:"impact"`
+		PersonalData                bool         `json:"personalData"`
+		RecommendedSolution         string       `json:"recommendedSolution"`
+		Attachments                 []Attachment `json:"attachments"`
+		IP                          string       `json:"ip"`
 	} `json:"report"`
 	State struct {
 		Status struct {
@@ -139,15 +230,9 @@ type Submission struct {
 	} `json:"reward"`
 	CreatedAt TimeStamp  `json:"createdAt"`
 	Destroyed *Destroyed `json:"-,omitempty"`
-	Assignee  struct {
-		UserID    string `json:"userId"`
-		UserName  string `json:"userName"`
-		AvatarURL string `json:"avatarUrl"`
-		Role      string `json:"role"`
-		Email     string `json:"email"`
-	} `json:"assignee"`
-	Tags      []string `json:"tags"`
-	GroupID   string   `json:"groupId"`
+	Assignee  User       `json:"assignee"`
+	Tags      []string   `json:"tags"`
+	GroupID   string     `json:"groupId"`
 	Submitter struct {
 		UserID    string `json:"userId"`
 		UserName  string `json:"userName"`
@@ -177,6 +262,9 @@ type Submission struct {
 		Details string `json:"details"`
 	} `json:"webLinks"`
 	IntegrationCount int `json:"integrationCount"`
+	// custom fields added by Radu Boian
+	Payouts []Payout `json:"payouts"`
+	Events  []Event  `json:"events"`
 }
 
 type Destroyed struct {
@@ -194,6 +282,14 @@ type DestroyedBy struct {
 
 type TimeStamp struct {
 	time.Time
+}
+
+// custm structs made by Radu Boian
+type Attachment struct {
+	URL  string `json:"url"`
+	Name string `json:"name"`
+	Code int    `json:"code"`
+	Type string `json:"type"`
 }
 
 func (s *TimeStamp) UnmarshalJSON(bytes []byte) error {

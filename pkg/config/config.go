@@ -1,14 +1,15 @@
 package config
 
 import (
+	"io/ioutil"
+	"time"
+
 	"github.com/juju/fslock"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 	"gopkg.in/yaml.v3"
-	"io/ioutil"
-	"time"
 )
 
 const (

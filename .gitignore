@@ -7,3 +7,6 @@ vendor/
 inti.yml
 .semrel/
 .generated-go-semantic-release-changelog.md
+
+submission.json
+submissionEvent.json

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/finn-no/go-intigriti/pkg/config"
+	config "github.com/finn-no/go-intigriti/pkg/config"
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 )
