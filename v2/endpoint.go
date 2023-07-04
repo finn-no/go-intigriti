@@ -3,7 +3,8 @@ package v2
 import (
 	"net/http"
 
-	config "github.com/finn-no/go-intigriti/pkg/config"
+	config "go-intigriti/pkg/config"
+
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"

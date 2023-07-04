@@ -39,6 +39,7 @@ func (e *Endpoint) getLocalHandler(state string, resultChan chan callbackResult,
 		w.Header().Set("content-type", "text/html; charset=UTF-8")
 		_, _ = w.Write([]byte(htmlAutoClose))
 
+		// TODO: follow up on the code to be right. Send it back to intigrity in the /token request
 		resultChan <- callbackResult{
 			Code:  r.URL.Query().Get("code"),
 			Error: nil,

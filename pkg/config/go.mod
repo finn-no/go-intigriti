@@ -1,0 +1,1 @@
+module go-intigriti/pkg/config
