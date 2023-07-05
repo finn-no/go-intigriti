@@ -3,16 +3,10 @@ package v2
 import (
 	"net/http"
 
-	config "go-intigriti/pkg/config"
-
+	config "github.com/hazcod/go-intigriti/pkg/config"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
-)
-
-const (
-	// TODO: inject on every HTTP request
-	clientTag = "finn-no/go-intigriti/2.0"
 )
 
 type Endpoint struct {
@@ -27,25 +21,49 @@ type Endpoint struct {
 	oauthToken *oauth2.Token
 }
 
-func New(clientToken string, clientSecret string, tc *config.TokenCache, logger *logrus.Logger) (Endpoint, error) {
+// New creates an Intigriti endpoint object to use
+// this is the main object to interact with the SDK
+func New(cfg config.Config) (Endpoint, error) {
 	e := Endpoint{
-		clientID:     clientToken,
-		clientSecret: clientSecret,
+		clientID:     cfg.Credentials.ClientID,
+		clientSecret: cfg.Credentials.ClientSecret,
 		clientTag:    clientTag,
 	}
 
-	if logger == nil {
+	// initialize the logger to use
+	if cfg.Logger == nil {
 		e.Logger = logrus.New()
 	} else {
-		e.Logger = logger
+		e.Logger = cfg.Logger
 	}
 
-	httpClient, err := e.getClient(tc)
+	// prepare our oauth2-ed http client
+	authenticator := &cfg.Authenticator
+	if !cfg.OpenBrowser {
+		authenticator = nil
+	}
+	cfg.TokenCache = &config.CachedToken{}
+
+	httpClient, err := e.getClient(cfg.TokenCache, authenticator)
 	if err != nil {
 		return e, errors.Wrap(err, "could not init client")
 	}
 
 	e.client = httpClient
 
+	// ensure our current token is fetched or renewed if expired
+	if _, err = e.getToken(); err != nil {
+		return e, errors.Wrap(err, "could not prepare token")
+	}
+
 	return e, nil
+}
+
+// IsAuthenticated returns whether the current SDK instance has successfully authenticated
+func (e *Endpoint) IsAuthenticated() bool {
+	if e.oauthToken == nil {
+		return false
+	}
+
+	return e.oauthToken.Valid()
 }
