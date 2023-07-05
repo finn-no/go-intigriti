@@ -1,1 +1,1 @@
-module go-intigriti/pkg/config
+module pkg/config
