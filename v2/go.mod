@@ -1,4 +1,4 @@
-module v2
+module github.com/finn-no/go-intigriti/v2
 
 go 1.18
 
