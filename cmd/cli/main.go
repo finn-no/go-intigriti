@@ -4,10 +4,10 @@ import (
 	"flag"
 	"strings"
 
-	"go-intigriti/pkg/config"
+	"github.com/hazcod/go-intigriti/cmd/cli/company"
+	"github.com/hazcod/go-intigriti/cmd/config"
 
-	"go-intigriti/cmd/cli/company"
-	v2 "go-intigriti/v2"
+	v2 "github.com/finn-no/go-intigriti/v2"
 
 	"github.com/sirupsen/logrus"
 )

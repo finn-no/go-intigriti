@@ -4,8 +4,9 @@ import (
 	"flag"
 	"strings"
 
-	config "go-intigriti/pkg/config"
-	v2 "go-intigriti/v2"
+	config "github.com/finn-no/go-intigriti/pkg/config"
+
+	v2 "github.com/finn-no/go-intigriti/v2"
 
 	"github.com/sirupsen/logrus"
 )

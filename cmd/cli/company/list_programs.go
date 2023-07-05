@@ -1,7 +1,7 @@
 package company
 
 import (
-	v2 "go-intigriti/v2"
+	v2 "github.com/finn-no/go-intigriti/v2"
 
 	"github.com/sirupsen/logrus"
 )

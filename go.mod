@@ -2,9 +2,20 @@ module github.com/finn-no/go-intigriti
 
 go 1.18
 
-require github.com/sirupsen/logrus v1.9.0
+require (
+	github.com/hazcod/go-intigriti v1.4.1
+	github.com/pkg/errors v0.9.1
+	github.com/sirupsen/logrus v1.9.3
+	golang.org/x/oauth2 v0.9.0
+)
 
 require (
-	golang.org/x/sys v0.6.0 // indirect
+	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b // indirect
+	github.com/kelseyhightower/envconfig v1.4.0 // indirect
+	golang.org/x/net v0.11.0 // indirect
+	golang.org/x/sys v0.9.0 // indirect
+	google.golang.org/appengine v1.6.7 // indirect
+	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

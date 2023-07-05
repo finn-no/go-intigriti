@@ -26,7 +26,7 @@ Check with your customer success representative what version you ought to use.
 package main
 
 import (
-	inti "go-intigriti/v2"
+	inti " github.com/finn-no/go-intigriti/v2"
 	"log"
 )
 

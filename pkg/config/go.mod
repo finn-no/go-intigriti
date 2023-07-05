@@ -1,1 +1,1 @@
-module pkg/config
+module config
