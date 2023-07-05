@@ -1,4 +1,4 @@
-module config
+module github.com/finn-no/go-intigriti/config
 
 go 1.20
 
