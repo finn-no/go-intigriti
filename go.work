@@ -1,8 +1,7 @@
 go 1.20
 
 use (
-	.
-	./pkg/config
+	. 
 	./v1
 	./v2
 )

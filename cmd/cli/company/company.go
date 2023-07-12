@@ -4,7 +4,7 @@ import (
 	"flag"
 	"strings"
 
-	config "github.com/finn-no/go-intigriti/pkg/config"
+	config "github.com/hazcod/go-intigriti/pkg/config"
 
 	v2 "github.com/finn-no/go-intigriti/v2"
 

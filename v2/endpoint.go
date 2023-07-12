@@ -2,15 +2,21 @@ package v2
 
 import (
 	"net/http"
+	"strings"
 
-	config "github.com/hazcod/go-intigriti/pkg/config"
+	"github.com/hazcod/go-intigriti/pkg/config"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
 
+const (
+	apiAllScopes = "offline_access company_external_api core_platform:read core_platform:write"
+)
+
 type Endpoint struct {
-	Logger *logrus.Logger
+	logger *logrus.Logger
+
 	URLAPI string
 
 	clientID     string
@@ -19,6 +25,8 @@ type Endpoint struct {
 
 	client     *http.Client
 	oauthToken *oauth2.Token
+
+	apiScopes []string
 }
 
 // New creates an Intigriti endpoint object to use
@@ -28,13 +36,18 @@ func New(cfg config.Config) (Endpoint, error) {
 		clientID:     cfg.Credentials.ClientID,
 		clientSecret: cfg.Credentials.ClientSecret,
 		clientTag:    clientTag,
+		apiScopes:    cfg.APIScopes,
+	}
+
+	if len(e.apiScopes) == 0 {
+		e.apiScopes = strings.Split(apiAllScopes, " ")
 	}
 
 	// initialize the logger to use
 	if cfg.Logger == nil {
-		e.Logger = logrus.New()
+		e.logger = logrus.New()
 	} else {
-		e.Logger = cfg.Logger
+		e.logger = cfg.Logger
 	}
 
 	// prepare our oauth2-ed http client
@@ -42,7 +55,6 @@ func New(cfg config.Config) (Endpoint, error) {
 	if !cfg.OpenBrowser {
 		authenticator = nil
 	}
-	cfg.TokenCache = &config.CachedToken{}
 
 	httpClient, err := e.getClient(cfg.TokenCache, authenticator)
 	if err != nil {

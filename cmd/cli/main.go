@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/hazcod/go-intigriti/cmd/cli/company"
-	"github.com/hazcod/go-intigriti/cmd/config"
+	"github.com/hazcod/go-intigriti/cmd/pkg/config"
 
 	v2 "github.com/finn-no/go-intigriti/v2"
 
