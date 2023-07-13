@@ -10,7 +10,7 @@ import (
 )
 
 func (e *Endpoint) GetSubmissionEvents(submissionCode string) ([]Event, error) {
-	payOutURL := fmt.Sprintf("%s%s/%s/events", e.URLAPI, apiSubmissions, submissionCode)
+	payOutURL := fmt.Sprintf("%s/%s/%s/events", e.URLAPI, apiSubmissions, submissionCode)
 	req, err := http.NewRequest(http.MethodGet, payOutURL, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create get programs")
