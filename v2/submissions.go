@@ -230,7 +230,7 @@ type Submission struct {
 			Currency string  `json:"currency"`
 		} `json:"possibleBounty"`
 	} `json:"reward"`
-	CreatedAt TimeStamp  `json:"createdAt"`
+	CreatedAt int        `json:"createdAt"`
 	Destroyed *Destroyed `json:"-,omitempty"`
 	Assignee  User       `json:"assignee"`
 	Tags      []string   `json:"tags"`
