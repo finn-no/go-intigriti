@@ -146,6 +146,7 @@ type Submission struct {
 		ProgramID   string `json:"programId"`
 		PentestCode string `json:"pentestCode"`
 	} `json:"originators"`
+	ProgramDetails    Program `json:"program"`
 	InternalReference struct {
 		Reference string `json:"reference"`
 		URL       string `json:"url"`

@@ -11,7 +11,7 @@ import (
 
 func TestLogin(t *testing.T) {
 
-	clientID := "xx"
+	clientID := "yy"
 	clientSecret := "xx"
 	fmt.Println(clientID, clientSecret)
 	t.Log(clientID, clientSecret)
@@ -29,8 +29,13 @@ func TestLogin(t *testing.T) {
 		t.Log(err)
 	}
 	fmt.Println("Is auth:", inti.IsAuthenticated())
-	fmt.Println(inti.GetSubmissions())
-	cc, _ := inti.GetSubmission("SCHIBSTED-WQGZO0J8")
-	fmt.Println("CC:", cc)
+	// fmt.Println(inti.GetSubmissions())
+	// cc, _ := inti.GetSubmission("SCHIBSTED-WQGZO0J8")
+	p, err := inti.GetProgram("f65f73f6-e60f-405e-a7fd-4674ecb618bc")
+	if err != nil {
+		fmt.Println(err)
+	}
+	// fmt.Println("CC:", cc)
+	fmt.Println("PG:", p)
 	assert.Equal(t, err, nil)
 }
