@@ -212,20 +212,20 @@ type Submission struct {
 	AwaitingFeedback bool `json:"awaitingFeedback"`
 	Reward           struct {
 		TotalPayout struct {
-			Value    int    `json:"value"`
-			Currency string `json:"currency"`
+			Value    float64 `json:"value"`
+			Currency string  `json:"currency"`
 		} `json:"totalPayout"`
 		TotalBountyPayout struct {
-			Value    int    `json:"value"`
-			Currency string `json:"currency"`
+			Value    float64 `json:"value"`
+			Currency string  `json:"currency"`
 		} `json:"totalBountyPayout"`
 		TotalBonusPayout struct {
-			Value    int    `json:"value"`
-			Currency string `json:"currency"`
+			Value    float64 `json:"value"`
+			Currency string  `json:"currency"`
 		} `json:"totalBonusPayout"`
 		PossibleBounty struct {
-			Value    int    `json:"value"`
-			Currency string `json:"currency"`
+			Value    float64 `json:"value"`
+			Currency string  `json:"currency"`
 		} `json:"possibleBounty"`
 	} `json:"reward"`
 	CreatedAt TimeStamp  `json:"createdAt"`
@@ -291,8 +291,8 @@ type SubmissionGeneral struct {
 		} `json:"closeReason"`
 	} `json:"state"`
 	TotalPayout struct {
-		Value    int    `json:"value"`
-		Currency string `json:"currency"`
+		Value    float64 `json:"value"`
+		Currency string  `json:"currency"`
 	} `json:"totalPayout"`
 	CreatedAt        int           `json:"createdAt"`
 	LastUpdatedAt    int           `json:"lastUpdatedAt"`

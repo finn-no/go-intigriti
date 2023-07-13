@@ -30,5 +30,6 @@ func TestLogin(t *testing.T) {
 		t.Log(err)
 	}
 	fmt.Println("Is auth:", inti.IsAuthenticated())
+	fmt.Println(inti.GetSubmissions())
 	assert.Equal(t, err, nil)
 }
