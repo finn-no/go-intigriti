@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	apiAllScopes = "offline_access company_external_api core_platform:read core_platform:write"
+	apiAllScopes = "offline_access company_external_api core_platform:read"
 )
 
 type Endpoint struct {

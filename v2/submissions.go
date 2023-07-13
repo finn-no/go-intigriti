@@ -104,8 +104,7 @@ func (e *Endpoint) GetSubmission(code string) (*Submission, error) {
 		return nil, errors.Wrap(err, "could not create http request to intigriti")
 	}
 
-	client := http.Client{}
-	resp, err := client.Do(req)
+	resp, err := e.client.Do(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "fetching to intigriti failed")
 	}
