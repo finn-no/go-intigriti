@@ -19,7 +19,7 @@ const (
 /*
 GetSubmissions returns a slice of submissions  from all orgs programs
 */
-func (e *Endpoint) GetSubmissions() ([]Submission, error) {
+func (e *Endpoint) GetSubmissions() ([]SubmissionGeneral, error) {
 	req, err := http.NewRequest(http.MethodGet, e.URLAPI+apiSubmissions, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create get programs")
@@ -40,7 +40,7 @@ func (e *Endpoint) GetSubmissions() ([]Submission, error) {
 		return nil, errors.Wrap(err, "could not read response")
 	}
 
-	var submissions []Submission
+	var submissions []SubmissionGeneral
 
 	if err := json.Unmarshal(b, &submissions); err != nil {
 		return nil, errors.Wrap(err, "could not decode programs")
@@ -265,6 +265,58 @@ type Submission struct {
 	// custom fields added by Radu Boian
 	Payouts []Payout `json:"payouts"`
 	Events  []Event  `json:"events"`
+}
+
+type SubmissionGeneral struct {
+	Code        string `json:"code"`
+	Originators struct {
+		ProgramID   string      `json:"programId"`
+		PentestCode interface{} `json:"pentestCode"`
+	} `json:"originators"`
+	InternalReference interface{} `json:"internalReference"`
+	Title             string      `json:"title"`
+	Severity          struct {
+		ID     int         `json:"id"`
+		Vector interface{} `json:"vector"`
+		Value  string      `json:"value"`
+	} `json:"severity"`
+	State struct {
+		Status struct {
+			ID    int    `json:"id"`
+			Value string `json:"value"`
+		} `json:"status"`
+		CloseReason struct {
+			ID    int    `json:"id"`
+			Value string `json:"value"`
+		} `json:"closeReason"`
+	} `json:"state"`
+	TotalPayout struct {
+		Value    int    `json:"value"`
+		Currency string `json:"currency"`
+	} `json:"totalPayout"`
+	CreatedAt        int           `json:"createdAt"`
+	LastUpdatedAt    int           `json:"lastUpdatedAt"`
+	AwaitingFeedback bool          `json:"awaitingFeedback"`
+	Destroyed        bool          `json:"destroyed"`
+	Assignee         interface{}   `json:"assignee"`
+	Tags             []interface{} `json:"tags"`
+	GroupID          interface{}   `json:"groupId"`
+	Submitter        struct {
+		Ranking struct {
+			Rank       int         `json:"rank"`
+			Reputation int         `json:"reputation"`
+			Streak     interface{} `json:"streak"`
+		} `json:"ranking"`
+		IdentityChecked bool        `json:"identityChecked"`
+		UserID          string      `json:"userId"`
+		UserName        string      `json:"userName"`
+		AvatarURL       interface{} `json:"avatarUrl"`
+		Role            string      `json:"role"`
+	} `json:"submitter"`
+	CollaboratorCount int `json:"collaboratorCount"`
+	WebLinks          struct {
+		Details string `json:"details"`
+	} `json:"webLinks"`
 }
 
 type Destroyed struct {
