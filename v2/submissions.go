@@ -12,15 +12,17 @@ import (
 )
 
 const (
-	apiSubmissions = "/company/v2/submissions"
-	apiEndpointV2  = "/company/v2"
+	apiSubmissions = "company/v2/submissions"
+	apiEndpointV2  = "company/v2"
 )
 
 /*
 GetSubmissions returns a slice of submissions  from all orgs programs
 */
 func (e *Endpoint) GetSubmissions() ([]SubmissionGeneral, error) {
-	req, err := http.NewRequest(http.MethodGet, e.URLAPI+apiSubmissions, nil)
+
+	url := fmt.Sprintf("%s/%s", e.URLAPI, apiSubmissions)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create get programs")
 	}
@@ -95,8 +97,8 @@ func (e *Endpoint) GetSubmission(code string) (*Submission, error) {
 	var err error
 	var req *http.Request
 
-	url := fmt.Sprintf("%s/%s", apiSubmissions, code)
-
+	url := fmt.Sprintf("%s/%s/%s", e.URLAPI, apiSubmissions, code)
+	fmt.Println("Final url:", url)
 	req, err = http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create http request to intigriti")

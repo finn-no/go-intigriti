@@ -2,7 +2,6 @@ package v2
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/go-playground/assert/v2"
@@ -12,8 +11,8 @@ import (
 
 func TestLogin(t *testing.T) {
 
-	clientID := os.Getenv("INTIGRITI_CLIENT_ID_V2")
-	clientSecret := os.Getenv("INTIGRITI_CLIENT_SECRET_V2")
+	clientID := "xx"
+	clientSecret := "xx"
 	fmt.Println(clientID, clientSecret)
 	t.Log(clientID, clientSecret)
 	t.Log(clientSecret, clientID)
@@ -31,5 +30,7 @@ func TestLogin(t *testing.T) {
 	}
 	fmt.Println("Is auth:", inti.IsAuthenticated())
 	fmt.Println(inti.GetSubmissions())
+	cc, _ := inti.GetSubmission("SCHIBSTED-WQGZO0J8")
+	fmt.Println("CC:", cc)
 	assert.Equal(t, err, nil)
 }
