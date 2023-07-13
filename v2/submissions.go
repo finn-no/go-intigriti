@@ -95,7 +95,7 @@ func (e *Endpoint) GetSubmission(code string) (*Submission, error) {
 	var err error
 	var req *http.Request
 
-	url := fmt.Sprintf("%s/%s", apiEndpointV2, code)
+	url := fmt.Sprintf("%s/%s", apiSubmissions, code)
 
 	req, err = http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
