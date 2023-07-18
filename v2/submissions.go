@@ -26,7 +26,7 @@ func (e *Endpoint) GetSubmissions() ([]SubmissionGeneral, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create get programs")
 	}
-	resp, err := e.client.Do(req)
+	resp, err := e.Client.Do(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not get programs")
 	}
@@ -45,7 +45,7 @@ func (e *Endpoint) GetSubmissions() ([]SubmissionGeneral, error) {
 	var submissions []SubmissionGeneral
 
 	if err := json.Unmarshal(b, &submissions); err != nil {
-		return nil, errors.Wrap(err, "could not decode programs")
+		e.Logger.Debug(errors.Wrap(err, "could not decode submissions"))
 	}
 
 	return submissions, nil
@@ -63,7 +63,7 @@ func (e *Endpoint) GetProgramSubmissions(programId string) ([]Submission, error)
 		return nil, errors.Wrap(err, "could not create get programs")
 	}
 
-	resp, err := e.client.Do(req)
+	resp, err := e.Client.Do(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not get programs")
 	}
@@ -82,7 +82,7 @@ func (e *Endpoint) GetProgramSubmissions(programId string) ([]Submission, error)
 	var submissions []Submission
 
 	if err := json.Unmarshal(b, &submissions); err != nil {
-		return nil, errors.Wrap(err, "could not decode programs")
+		e.Logger.Debug(errors.Wrap(err, "could not decode submissions"))
 	}
 
 	return submissions, nil
@@ -104,7 +104,7 @@ func (e *Endpoint) GetSubmission(code string) (*Submission, error) {
 		return nil, errors.Wrap(err, "could not create http request to intigriti")
 	}
 
-	resp, err := e.client.Do(req)
+	resp, err := e.Client.Do(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "fetching to intigriti failed")
 	}
@@ -197,14 +197,11 @@ type Submission struct {
 			ID    int    `json:"id"`
 			Value string `json:"value"`
 		} `json:"closeReason"`
-		DuplicateInfo struct {
-			ParentSubmissionCode string   `json:"parentSubmissionCode"`
-			ChildSubmissionCodes []string `json:"childSubmissionCodes"`
-		} `json:"duplicateInfo"`
-		ValidatedAt int `json:"validatedAt"`
-		AcceptedAt  int `json:"acceptedAt"`
-		ClosedAt    int `json:"closedAt"`
-		ArchivedAt  int `json:"archivedAt"`
+		DuplicateInfo interface{} `json:"duplicateInfo"`
+		ValidatedAt   int         `json:"validatedAt"`
+		AcceptedAt    int         `json:"acceptedAt"`
+		ClosedAt      int         `json:"closedAt"`
+		ArchivedAt    int         `json:"archivedAt"`
 	} `json:"state"`
 	Severity struct {
 		ID     int    `json:"id"`

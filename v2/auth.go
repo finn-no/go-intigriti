@@ -55,8 +55,8 @@ func init() {
 }
 
 // retrieve the oauth2 configuration to use
-func (e *Endpoint) getOauth2Config(apiScopes []string) oauth2.Config {
-	e.logger.WithField("api_url", apiURL).Debug("set api url")
+func (e *Endpoint) GetOauth2Config(apiScopes []string) oauth2.Config {
+	e.Logger.WithField("api_url", apiURL).Debug("set api url")
 
 	oauthConfig := oauth2.Config{
 		ClientID:     e.clientID,
@@ -69,23 +69,23 @@ func (e *Endpoint) getOauth2Config(apiScopes []string) oauth2.Config {
 		Scopes:      apiScopes,
 	}
 	e.URLAPI = apiURL
-	e.logger.Tracef("%+v", oauthConfig)
+	e.Logger.Tracef("%+v", oauthConfig)
 
 	return oauthConfig
 }
 
 // fetch the latest (valid) oauth2 access and refresh token
-func (e *Endpoint) getToken() (*oauth2.Token, error) {
+func (e *Endpoint) GetToken() (*oauth2.Token, error) {
 	// don't do anything when the token is ok
-	if e.oauthToken != nil && e.oauthToken.Valid() {
-		return e.oauthToken, nil
+	if e.OauthToken != nil && e.OauthToken.Valid() {
+		return e.OauthToken, nil
 	}
 
 	// get out oauth2 config to use
-	conf := e.getOauth2Config(e.apiScopes)
+	conf := e.GetOauth2Config(e.ApiScopes)
 
 	// get valid refresh and access tokens
-	tokenSrc := conf.TokenSource(context.Background(), e.oauthToken)
+	tokenSrc := conf.TokenSource(context.Background(), e.OauthToken)
 	token, err := tokenSrc.Token()
 	if err != nil {
 		return nil, errors.Wrap(err, "could not retrieve refresh token")
@@ -95,16 +95,16 @@ func (e *Endpoint) getToken() (*oauth2.Token, error) {
 }
 
 // return the http client which automatically injects the right authentication credentials
-func (e *Endpoint) getClient(tc *config.CachedToken, auth *config.InteractiveAuthenticator) (*http.Client, error) {
+func (e *Endpoint) GetClient(tc *config.CachedToken, auth *config.InteractiveAuthenticator) (*http.Client, error) {
 	ctx := context.Background()
 
-	conf := e.getOauth2Config(e.apiScopes)
+	conf := e.GetOauth2Config(e.ApiScopes)
 
 	httpClient := &http.Client{Timeout: httpTimeoutSec * time.Second}
 
 	ctx = context.WithValue(ctx, oauth2.HTTPClient, httpClient)
 
-	e.oauthToken = &oauth2.Token{}
+	e.OauthToken = &oauth2.Token{}
 
 	if tc == nil {
 		tc = &config.CachedToken{}
@@ -112,36 +112,36 @@ func (e *Endpoint) getClient(tc *config.CachedToken, auth *config.InteractiveAut
 
 	// if our configuration contains a cached token, re-use it
 	if tc.RefreshToken != "" {
-		e.logger.Debug("trying to use cached token")
-		e.oauthToken.AccessToken = tc.AccessToken
-		e.oauthToken.RefreshToken = tc.RefreshToken
-		e.oauthToken.Expiry = tc.ExpiryDate
-		e.oauthToken.TokenType = tc.Type
+		e.Logger.Debug("trying to use cached token")
+		e.OauthToken.AccessToken = tc.AccessToken
+		e.OauthToken.RefreshToken = tc.RefreshToken
+		e.OauthToken.Expiry = tc.ExpiryDate
+		e.OauthToken.TokenType = tc.Type
 	}
 
 	// if the current token is invalid, fetch a new one
-	if !e.oauthToken.Valid() {
-		e.logger.Debug("authenticating for new token")
+	if !e.OauthToken.Valid() {
+		e.Logger.Debug("authenticating for new token")
 
 		authzCode, err := e.authenticate(ctx, &conf, auth)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to authenticate")
 		}
 
-		e.logger.WithField("code", authzCode).Debug("exchanging code")
+		e.Logger.WithField("code", authzCode).Debug("exchanging code")
 
-		e.oauthToken, err = conf.Exchange(ctx, authzCode)
+		e.OauthToken, err = conf.Exchange(ctx, authzCode)
 		if err != nil {
 			return nil, errors.Wrap(err, "could not exchange code")
 		}
 	}
 
 	// ensure our http client uses our oauth2 credentials
-	authHttpClient := conf.Client(ctx, e.oauthToken)
+	authHttpClient := conf.Client(ctx, e.OauthToken)
 
 	// inject a logging middleware into our http client
-	authHttpClient.Transport = TaggedRoundTripper{Proxied: authHttpClient.Transport, Logger: e.logger}
-	e.logger.Debug("successfully created client")
+	authHttpClient.Transport = TaggedRoundTripper{Proxied: authHttpClient.Transport, Logger: e.Logger}
+	e.Logger.Debug("successfully created client")
 
 	return authHttpClient, nil
 }
@@ -159,18 +159,18 @@ func (e *Endpoint) authenticate(ctx context.Context, oauth2Config *oauth2.Config
 
 	// Redirect user to consent page to ask for permission 	for the scopes specified above.
 	url := oauth2Config.AuthCodeURL(state, oauth2.AccessTypeOffline)
-	e.logger.Warnf("Please authenticate: %s", url)
+	e.Logger.Warnf("Please authenticate: %s", url)
 
 	if auth != nil {
-		e.logger.Info("opening system browser to authenticate")
+		e.Logger.Info("opening system browser to authenticate")
 
 		authenticator := *auth
 		if err := authenticator.OpenURL(url); err != nil {
-			e.logger.WithField("url", url).WithError(err).Warnf("could not open browser")
+			e.Logger.WithField("url", url).WithError(err).Warnf("could not open browser")
 		}
 	}
 
-	e.logger.Debug("waiting for callback click")
+	e.Logger.Debug("waiting for callback click")
 
 	var chanResult callbackResult
 	select {
@@ -181,7 +181,7 @@ func (e *Endpoint) authenticate(ctx context.Context, oauth2Config *oauth2.Config
 		break
 	}
 
-	e.logger.WithField("result", chanResult).Debug("received callback result")
+	e.Logger.WithField("result", chanResult).Debug("received callback result")
 
 	if chanResult.Error != nil {
 		return "", chanResult.Error
@@ -191,6 +191,6 @@ func (e *Endpoint) authenticate(ctx context.Context, oauth2Config *oauth2.Config
 		return "", errors.New("got empty code")
 	}
 
-	e.logger.WithField("code", chanResult.Code).Debug("successfully retrieved new code")
+	e.Logger.WithField("code", chanResult.Code).Debug("successfully retrieved new code")
 	return chanResult.Code, nil
 }

@@ -16,7 +16,7 @@ func (e *Endpoint) GetSubmissionPayouts(submissionCode string) ([]Payout, error)
 		return nil, errors.Wrap(err, "could not create get programs")
 	}
 
-	resp, err := e.client.Do(req)
+	resp, err := e.Client.Do(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not get programs")
 	}
@@ -35,7 +35,7 @@ func (e *Endpoint) GetSubmissionPayouts(submissionCode string) ([]Payout, error)
 	var payouts []Payout
 
 	if err := json.Unmarshal(b, &payouts); err != nil {
-		return nil, errors.Wrap(err, "could not decode programs")
+		e.Logger.Error(errors.Wrap(err, "could not decode payouts"))
 	}
 
 	return payouts, nil
@@ -50,8 +50,8 @@ type Payout struct {
 		RewardRequestID interface{} `json:"rewardRequestId"`
 	} `json:"originators"`
 	Amount struct {
-		Value    int    `json:"value"`
-		Currency string `json:"currency"`
+		Value    float64 `json:"value"`
+		Currency string  `json:"currency"`
 	} `json:"amount"`
 	Type struct {
 		ID    int    `json:"id"`

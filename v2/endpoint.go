@@ -15,7 +15,7 @@ const (
 )
 
 type Endpoint struct {
-	logger *logrus.Logger
+	Logger *logrus.Logger
 
 	URLAPI string
 
@@ -23,10 +23,10 @@ type Endpoint struct {
 	clientSecret string
 	clientTag    string
 
-	client     *http.Client
-	oauthToken *oauth2.Token
+	Client     *http.Client
+	OauthToken *oauth2.Token
 
-	apiScopes []string
+	ApiScopes []string
 }
 
 // New creates an Intigriti endpoint object to use
@@ -36,18 +36,18 @@ func New(cfg config.Config) (Endpoint, error) {
 		clientID:     cfg.Credentials.ClientID,
 		clientSecret: cfg.Credentials.ClientSecret,
 		clientTag:    clientTag,
-		apiScopes:    cfg.APIScopes,
+		ApiScopes:    cfg.APIScopes,
 	}
 
-	if len(e.apiScopes) == 0 {
-		e.apiScopes = strings.Split(apiAllScopes, " ")
+	if len(e.ApiScopes) == 0 {
+		e.ApiScopes = strings.Split(apiAllScopes, " ")
 	}
 
 	// initialize the logger to use
 	if cfg.Logger == nil {
-		e.logger = logrus.New()
+		e.Logger = logrus.New()
 	} else {
-		e.logger = cfg.Logger
+		e.Logger = cfg.Logger
 	}
 
 	// prepare our oauth2-ed http client
@@ -56,15 +56,15 @@ func New(cfg config.Config) (Endpoint, error) {
 		authenticator = nil
 	}
 
-	httpClient, err := e.getClient(cfg.TokenCache, authenticator)
+	httpClient, err := e.GetClient(cfg.TokenCache, authenticator)
 	if err != nil {
 		return e, errors.Wrap(err, "could not init client")
 	}
 
-	e.client = httpClient
+	e.Client = httpClient
 
 	// ensure our current token is fetched or renewed if expired
-	if _, err = e.getToken(); err != nil {
+	if _, err = e.GetToken(); err != nil {
 		return e, errors.Wrap(err, "could not prepare token")
 	}
 
@@ -73,9 +73,9 @@ func New(cfg config.Config) (Endpoint, error) {
 
 // IsAuthenticated returns whether the current SDK instance has successfully authenticated
 func (e *Endpoint) IsAuthenticated() bool {
-	if e.oauthToken == nil {
+	if e.OauthToken == nil {
 		return false
 	}
 
-	return e.oauthToken.Valid()
+	return e.OauthToken.Valid()
 }

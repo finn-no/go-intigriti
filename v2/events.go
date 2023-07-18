@@ -16,7 +16,7 @@ func (e *Endpoint) GetSubmissionEvents(submissionCode string) ([]Event, error) {
 		return nil, errors.Wrap(err, "could not create get programs")
 	}
 
-	resp, err := e.client.Do(req)
+	resp, err := e.Client.Do(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not get programs")
 	}
@@ -35,7 +35,7 @@ func (e *Endpoint) GetSubmissionEvents(submissionCode string) ([]Event, error) {
 	var events []Event
 
 	if err := json.Unmarshal(b, &events); err != nil {
-		return nil, errors.Wrap(err, "could not decode programs")
+		e.Logger.Error(errors.Wrap(err, "could not decode events"))
 	}
 
 	return events, nil
@@ -43,9 +43,9 @@ func (e *Endpoint) GetSubmissionEvents(submissionCode string) ([]Event, error) {
 
 type Event struct {
 	Type struct {
-		ID    int    `json:"id"`
-		Value string `json:"value"`
-	} `json:"type"`
+		ID    int    `json:"id,omitempty"`
+		Value string `json:"value,omitempty"`
+	} `json:"type,omitempty"`
 	From struct {
 		Status struct {
 			ID    int    `json:"id,omitempty"`
@@ -59,9 +59,9 @@ type Event struct {
 		Email                  string      `json:"email,omitempty"`
 		Role                   string      `json:"role,omitempty"`
 		DuplicateInfo          struct {
-			ParentSubmissionCode interface{} `json:"parentSubmissionCode"`
-			ChildSubmissionCodes interface{} `json:"childSubmissionCodes"`
-		} `json:"duplicateInfo"`
+			ParentSubmissionCode interface{} `json:"parentSubmissionCode,omitempty"`
+			ChildSubmissionCodes interface{} `json:"childSubmissionCodes,omitempty"`
+		} `json:"duplicateInfo,omitempty"`
 	} `json:"from,omitempty"`
 	To struct {
 		Status struct {
@@ -76,9 +76,9 @@ type Event struct {
 		Email                  string      `json:"email,omitempty"`
 		Role                   string      `json:"role,omitempty"`
 		DuplicateInfo          struct {
-			ParentSubmissionCode interface{} `json:"parentSubmissionCode"`
-			ChildSubmissionCodes interface{} `json:"childSubmissionCodes"`
-		} `json:"duplicateInfo"`
+			ParentSubmissionCode interface{} `json:"parentSubmissionCode,omitempty"`
+			ChildSubmissionCodes interface{} `json:"childSubmissionCodes,omitempty"`
+		} `json:"duplicateInfo,omitempty"`
 	} `json:"to,omitempty"`
 	Message                string       `json:"message,omitempty"`
 	Attachments            []Attachment `json:"attachments,omitempty"`
@@ -86,18 +86,15 @@ type Event struct {
 	LastEditedAt           int64        `json:"lastEditedAt,omitempty"`
 	DeletedAt              int64        `json:"deletedAt,omitempty"`
 	CreatedAt              int64        `json:"createdAt"`
-	Visibility             struct {
-		ID    int    `json:"id"`
-		Value string `json:"value"`
-	} `json:"visibility"`
-	User   User `json:"user,omitempty"`
-	Amount struct {
-		Value    int    `json:"value"`
-		Currency string `json:"currency"`
+	Visibility             interface{}  `json:"visibility"`
+	User                   User         `json:"user,omitempty"`
+	Amount                 struct {
+		Value    float64 `json:"value,omitempty"`
+		Currency string  `json:"currency,omitempty"`
 	} `json:"amount,omitempty"`
 	PayoutType struct {
-		ID    int    `json:"id"`
-		Value string `json:"value"`
-	} `json:"payoutType,omitempty"`
+		ID    int    `json:"id,omitempty"`
+		Value string `json:"value,omitempty"`
+	} `json:"payoutType"`
 	PayoutID string `json:"payoutId,omitempty"`
 }

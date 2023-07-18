@@ -20,7 +20,7 @@ func (e *Endpoint) GetPrograms() ([]Program, error) {
 		return nil, errors.Wrap(err, "could not create get programs")
 	}
 
-	resp, err := e.client.Do(req)
+	resp, err := e.Client.Do(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not get programs")
 	}
@@ -39,43 +39,43 @@ func (e *Endpoint) GetPrograms() ([]Program, error) {
 	var programs []Program
 
 	if err := json.Unmarshal(b, &programs); err != nil {
-		return nil, errors.Wrap(err, "could not decode programs")
+		e.Logger.Error(errors.Wrap(err, "could not decode programs"))
 	}
 
 	return programs, nil
 }
 
-func (e *Endpoint) GetProgram(id string) (*Program, error) {
+func (e *Endpoint) GetProgram(id string) (Program, error) {
 	programUrl := fmt.Sprintf("%s/%s/%s", e.URLAPI, programURI, id)
 	req, err := http.NewRequest(http.MethodGet, programUrl, nil)
 	fmt.Println("Final url:", programUrl)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not create get programs")
+		return Program{}, errors.Wrap(err, "could not create get programs")
 	}
 
-	resp, err := e.client.Do(req)
+	resp, err := e.Client.Do(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not get programs")
+		return Program{}, errors.Wrap(err, "could not get programs")
 	}
 
 	if resp.StatusCode > 399 {
-		return nil, errors.Errorf("returned status %d", resp.StatusCode)
+		return Program{}, errors.Errorf("returned status %d", resp.StatusCode)
 	}
 
 	defer resp.Body.Close()
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not read response")
+		return Program{}, errors.Wrap(err, "could not read response")
 	}
 
 	var program Program
 
 	if err := json.Unmarshal(b, &program); err != nil {
-		return nil, errors.Wrap(err, "could not decode programs")
+		e.Logger.Error(errors.Wrap(err, "could not decode program"))
 	}
 
-	return &program, nil
+	return program, nil
 }
 
 type ProgramOld struct {
